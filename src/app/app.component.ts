@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, Renderer2} from '@angular/core';
 
 @Component({
   selector: 'element-with-md-button',
@@ -19,7 +19,7 @@ import {Component} from '@angular/core';
           </p>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-button>LIKE</button>
+          <button mat-button (click)="handleClick()">{{message}}</button>
           <button mat-button>SHARE</button>
         </mat-card-actions>
       </mat-card>
@@ -27,4 +27,28 @@ import {Component} from '@angular/core';
   `,
   styleUrls: ['app.component.css']
 })
-export class AppComponent {}
+export class AppComponent {
+  element: ElementRef;
+  renderer: Renderer2;
+
+
+  constructor(element: ElementRef, renderer: Renderer2) {
+    this.element = element;
+    this.renderer = renderer;
+  }
+
+  @Input("message")
+  message = "default";
+
+  @Input("action")
+  set action(func) {
+    console.log(func);
+    this.renderer.listen(this.element.nativeElement, 'on_rigth_click', window[func]);
+  }
+
+  @Output() on_rigth_click = new EventEmitter<string>();
+  handleClick() {
+    console.debug(this);
+    this.on_rigth_click.emit(this.message)
+  }
+}
